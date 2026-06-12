@@ -12,7 +12,7 @@ from .client import KalshiClient, KalshiClientError
 from .config import Settings, load_settings
 from .copy_trading import evaluate_copy_signals, load_copy_signals
 from .social import LeaderboardError, fetch_apify_leaderboard, load_leaderboard_file, rank_traders_for_copying
-from .strategy import choose_low_price_candidates
+from .strategy import choose_combo_prediction_candidates, choose_low_price_candidates, load_prediction_signals
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -41,6 +41,11 @@ def build_parser() -> argparse.ArgumentParser:
     run = subparsers.add_parser("run", help="Scan markets and optionally place one conservative order.")
     run.add_argument("--limit", type=int, default=10, help="Number of open markets to scan.")
     run.add_argument("--max-price-cents", type=int, help="Maximum displayed ask price to consider.")
+    run.add_argument("--strategy", choices=("low-price", "combo-prediction"), default="low-price")
+    run.add_argument("--predictions-file", help="JSON file with multiple YES-probability predictions per ticker.")
+    run.add_argument("--min-combo-signals", type=int, help="Minimum prediction signals required for combo-prediction.")
+    run.add_argument("--min-edge-cents", type=int, help="Minimum predicted edge over ask for combo-prediction.")
+    run.add_argument("--min-confidence-cents", type=int, help="Minimum combo probability required for the selected outcome.")
     run.add_argument("--count", type=int, help="Contract count to submit if live trading is enabled.")
     run.add_argument("--live", action="store_true", help="Actually submit an order. Omit for dry-run only.")
 
@@ -162,10 +167,22 @@ def run_bot(args: argparse.Namespace, settings: Settings, client: KalshiClient) 
     count = args.count or settings.default_order_count
     markets_payload = client.get_markets(limit=args.limit, status="open")
     markets = markets_payload.get("markets", [])
-    candidates = choose_low_price_candidates(markets, max_price_cents=max_price_cents)
+    if args.strategy == "combo-prediction":
+        if not args.predictions_file:
+            raise ValueError("--predictions-file is required when --strategy combo-prediction is used.")
+        candidates = choose_combo_prediction_candidates(
+            markets,
+            load_prediction_signals(args.predictions_file),
+            max_price_cents=max_price_cents,
+            min_edge_cents=args.min_edge_cents or settings.combo_min_edge_cents,
+            min_confidence_cents=args.min_confidence_cents or settings.combo_min_confidence_cents,
+            min_combo_signals=args.min_combo_signals or settings.combo_min_signals,
+        )
+    else:
+        candidates = choose_low_price_candidates(markets, max_price_cents=max_price_cents)
 
     if not candidates:
-        print(f"No candidates found at or below {max_price_cents}¢.")
+        print(f"No {args.strategy} candidates found at or below {max_price_cents}¢.")
         return 0
 
     candidate = candidates[0]
@@ -173,6 +190,7 @@ def run_bot(args: argparse.Namespace, settings: Settings, client: KalshiClient) 
         json.dumps(
             {
                 "selected": candidate.__dict__,
+                "strategy": args.strategy,
                 "count": count,
                 "dry_run": settings.dry_run or not args.live,
             },

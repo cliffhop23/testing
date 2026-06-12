@@ -10,6 +10,7 @@ A safety-first Python scaffold for a Kalshi event-contract trading bot. It uses 
 - Authenticated balance and order endpoints with `KALSHI-ACCESS-*` headers.
 - RSA private-key request signing.
 - A tiny starter strategy that selects open markets with displayed asks at or below a configurable maximum.
+- A combo-prediction strategy that requires multiple independent prediction inputs for the same market before considering an order.
 - Dry-run safeguards that require both `KALSHI_DRY_RUN=false` and `--live` before submitting an order.
 - Optional Kalshi social leaderboard ingestion from a local JSON export or the third-party Apify scraper, with copy-trading filters for profit, ROI, rank, history, market volume, category, and price.
 
@@ -52,6 +53,25 @@ Run the sample strategy in dry-run mode:
 ```bash
 kalshi-bot run --limit 20 --max-price-cents 1 --count 1
 ```
+
+Run the combo-prediction strategy with a local prediction file:
+
+```bash
+kalshi-bot run --strategy combo-prediction --predictions-file predictions.json --max-price-cents 40 --min-combo-signals 2 --min-edge-cents 5
+```
+
+Example `predictions.json`:
+
+```json
+{
+  "predictions": [
+    {"ticker": "EXAMPLE-26", "probability": 0.66, "source": "model-a", "weight": 1.0},
+    {"ticker": "EXAMPLE-26", "probability": "62%", "source": "model-b", "weight": 0.8}
+  ]
+}
+```
+
+The combo strategy converts each row into a YES-probability estimate, computes a weighted combo probability, then only picks YES or NO when enough sources agree and the predicted probability clears the configured confidence and edge thresholds.
 
 Submit a live order only after you intentionally disable the environment safety and pass `--live`:
 
