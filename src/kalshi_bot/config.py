@@ -20,6 +20,22 @@ class Settings:
     dry_run: bool
     default_order_count: int
     default_max_price_cents: int
+<<<<<<< HEAD
+=======
+    combo_min_signals: int
+    combo_min_edge_cents: int
+    combo_min_confidence_cents: int
+    apify_api_token: str | None
+    leaderboard_metric: str
+    leaderboard_timeframe: str
+    leaderboard_category: str
+    copy_min_projected_pnl_cents: int
+    copy_min_roi_percent: float | None
+    copy_min_markets_traded: int
+    copy_max_rank: int | None
+    copy_min_market_volume: int
+    copy_allowed_categories: frozenset[str]
+>>>>>>> origin/main
 
     @property
     def has_credentials(self) -> bool:
@@ -48,6 +64,21 @@ def _load_env_file(env_file: str | os.PathLike[str] | None) -> None:
         os.environ.setdefault(key, value)
 
 
+<<<<<<< HEAD
+=======
+def _optional_int(value: str | None) -> int | None:
+    if value in (None, ""):
+        return None
+    return int(value)
+
+
+def _optional_float(value: str | None) -> float | None:
+    if value in (None, ""):
+        return None
+    return float(value)
+
+
+>>>>>>> origin/main
 def load_settings(env_file: str | os.PathLike[str] | None = ".env") -> Settings:
     """Load settings from ``env_file`` and process environment variables."""
 
@@ -64,4 +95,22 @@ def load_settings(env_file: str | os.PathLike[str] | None = ".env") -> Settings:
         dry_run=_bool_from_env(os.getenv("KALSHI_DRY_RUN"), default=True),
         default_order_count=int(os.getenv("KALSHI_DEFAULT_ORDER_COUNT", "1")),
         default_max_price_cents=int(os.getenv("KALSHI_DEFAULT_MAX_PRICE_CENTS", "1")),
+<<<<<<< HEAD
+=======
+        combo_min_signals=int(os.getenv("KALSHI_COMBO_MIN_SIGNALS", "2")),
+        combo_min_edge_cents=int(os.getenv("KALSHI_COMBO_MIN_EDGE_CENTS", "3")),
+        combo_min_confidence_cents=int(os.getenv("KALSHI_COMBO_MIN_CONFIDENCE_CENTS", "55")),
+        apify_api_token=os.getenv("APIFY_API_TOKEN"),
+        leaderboard_metric=os.getenv("KALSHI_LEADERBOARD_METRIC", "projected_pnl"),
+        leaderboard_timeframe=os.getenv("KALSHI_LEADERBOARD_TIMEFRAME", "monthly"),
+        leaderboard_category=os.getenv("KALSHI_LEADERBOARD_CATEGORY", ""),
+        copy_min_projected_pnl_cents=int(os.getenv("KALSHI_COPY_MIN_PROJECTED_PNL_CENTS", "10000")),
+        copy_min_roi_percent=_optional_float(os.getenv("KALSHI_COPY_MIN_ROI_PERCENT")),
+        copy_min_markets_traded=int(os.getenv("KALSHI_COPY_MIN_MARKETS_TRADED", "5")),
+        copy_max_rank=_optional_int(os.getenv("KALSHI_COPY_MAX_RANK", "25")),
+        copy_min_market_volume=int(os.getenv("KALSHI_COPY_MIN_MARKET_VOLUME", "0")),
+        copy_allowed_categories=frozenset(
+            item.strip() for item in os.getenv("KALSHI_COPY_ALLOWED_CATEGORIES", "").split(",") if item.strip()
+        ),
+>>>>>>> origin/main
     )

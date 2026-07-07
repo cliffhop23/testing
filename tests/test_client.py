@@ -43,3 +43,20 @@ def test_v2_event_order_payload(monkeypatch):
         },
         "auth": True,
     }
+<<<<<<< HEAD
+=======
+
+
+def test_get_market_uses_public_market_endpoint(monkeypatch):
+    client = KalshiClient(base_url="https://external-api.demo.kalshi.co/trade-api/v2")
+    captured = {}
+
+    def fake_request(method, path, *, params=None, json=None, auth=False):
+        captured.update(method=method, path=path, auth=auth)
+        return {"market": {"ticker": "TEST"}}
+
+    monkeypatch.setattr(client, "request", fake_request)
+
+    assert client.get_market("TEST") == {"market": {"ticker": "TEST"}}
+    assert captured == {"method": "GET", "path": "/markets/TEST", "auth": False}
+>>>>>>> origin/main

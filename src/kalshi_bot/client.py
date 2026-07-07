@@ -40,6 +40,12 @@ class KalshiClient:
     def get_markets(self, *, limit: int = 10, status: str = "open") -> dict[str, Any]:
         return self.request("GET", "/markets", params={"limit": limit, "status": status}, auth=False)
 
+<<<<<<< HEAD
+=======
+    def get_market(self, ticker: str) -> dict[str, Any]:
+        return self.request("GET", f"/markets/{ticker}", auth=False)
+
+>>>>>>> origin/main
     def get_orderbook(self, ticker: str) -> dict[str, Any]:
         return self.request("GET", f"/markets/{ticker}/orderbook", auth=False)
 
