@@ -35,8 +35,18 @@ def choose_low_price_candidates(
     for market in markets:
         ticker = str(market.get("ticker", ""))
         title = str(market.get("title", ticker))
-        yes_ask = _coerce_cents(market.get("yes_ask"))
-        no_ask = _coerce_cents(market.get("no_ask"))
+        # Prefer the documented dollar fields (yes_ask_dollars / no_ask_dollars),
+        # falling back to the older yes_ask / no_ask for backwards compatibility.
+        if market.get("yes_ask_dollars") is not None:
+            yes_ask = _coerce_dollars_to_cents(market.get("yes_ask_dollars"))
+        else:
+            yes_ask = _coerce_cents(market.get("yes_ask"))
+
+        if market.get("no_ask_dollars") is not None:
+            no_ask = _coerce_dollars_to_cents(market.get("no_ask_dollars"))
+        else:
+            no_ask = _coerce_cents(market.get("no_ask"))
+
         ask_prices = [price for price in (yes_ask, no_ask) if price is not None]
         if not ticker or not ask_prices:
             continue
@@ -55,9 +65,32 @@ def choose_low_price_candidates(
 
 
 def _coerce_cents(value: object) -> int | None:
+    """Coerce a value already represented in cents to an int, or return None.
+
+    This preserves backward compatibility with older payloads where yes_ask/no_ask
+    were integer-cent values (e.g. 350 for $3.50).
+    """
     if value in (None, ""):
         return None
     try:
         return int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def _coerce_dollars_to_cents(value: object) -> int | None:
+    """Convert a dollar value (string or number) to integer cents.
+
+    Examples:
+      "3.50" -> 350
+      3.5 -> 350
+    Rounds to the nearest cent and handles malformed inputs gracefully by
+    returning None.
+    """
+    if value in (None, ""):
+        return None
+    try:
+        cents = round(float(value) * 100)
+        return int(cents)
     except (TypeError, ValueError):
         return None
