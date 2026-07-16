@@ -43,6 +43,8 @@ def test_v2_event_order_payload(monkeypatch):
         },
         "auth": True,
     }
+<<<<<<< HEAD
+=======
 
 
 def test_get_market_uses_public_market_endpoint(monkeypatch):
@@ -57,3 +59,4 @@ def test_get_market_uses_public_market_endpoint(monkeypatch):
 
     assert client.get_market("TEST") == {"market": {"ticker": "TEST"}}
     assert captured == {"method": "GET", "path": "/markets/TEST", "auth": False}
+>>>>>>> origin/main

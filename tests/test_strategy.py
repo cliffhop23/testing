@@ -1,9 +1,13 @@
+<<<<<<< HEAD
+from kalshi_bot.strategy import choose_low_price_candidates
+=======
 from kalshi_bot.strategy import (
     PredictionSignal,
     choose_combo_prediction_candidates,
     choose_low_price_candidates,
     load_prediction_signals,
 )
+>>>>>>> origin/main
 
 
 def test_choose_low_price_candidates_picks_affordable_markets():
@@ -21,6 +25,8 @@ def test_choose_low_price_candidates_picks_affordable_markets():
 
 def test_choose_low_price_candidates_skips_missing_prices():
     assert choose_low_price_candidates([{"ticker": "EMPTY"}], max_price_cents=1) == []
+<<<<<<< HEAD
+=======
 
 
 def test_load_prediction_signals_accepts_prediction_list(tmp_path):
@@ -65,3 +71,4 @@ def test_choose_combo_prediction_candidates_requires_multiple_signals_and_edge()
     assert candidates[0].edge_cents == 48
     assert candidates[0].combo_signal_count == 2
     assert candidates[1].outcome == "yes"
+>>>>>>> origin/main

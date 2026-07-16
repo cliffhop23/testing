@@ -20,6 +20,8 @@ class Settings:
     dry_run: bool
     default_order_count: int
     default_max_price_cents: int
+<<<<<<< HEAD
+=======
     combo_min_signals: int
     combo_min_edge_cents: int
     combo_min_confidence_cents: int
@@ -33,6 +35,7 @@ class Settings:
     copy_max_rank: int | None
     copy_min_market_volume: int
     copy_allowed_categories: frozenset[str]
+>>>>>>> origin/main
 
     @property
     def has_credentials(self) -> bool:
@@ -61,6 +64,8 @@ def _load_env_file(env_file: str | os.PathLike[str] | None) -> None:
         os.environ.setdefault(key, value)
 
 
+<<<<<<< HEAD
+=======
 def _optional_int(value: str | None) -> int | None:
     if value in (None, ""):
         return None
@@ -73,6 +78,7 @@ def _optional_float(value: str | None) -> float | None:
     return float(value)
 
 
+>>>>>>> origin/main
 def load_settings(env_file: str | os.PathLike[str] | None = ".env") -> Settings:
     """Load settings from ``env_file`` and process environment variables."""
 
@@ -89,6 +95,8 @@ def load_settings(env_file: str | os.PathLike[str] | None = ".env") -> Settings:
         dry_run=_bool_from_env(os.getenv("KALSHI_DRY_RUN"), default=True),
         default_order_count=int(os.getenv("KALSHI_DEFAULT_ORDER_COUNT", "1")),
         default_max_price_cents=int(os.getenv("KALSHI_DEFAULT_MAX_PRICE_CENTS", "1")),
+<<<<<<< HEAD
+=======
         combo_min_signals=int(os.getenv("KALSHI_COMBO_MIN_SIGNALS", "2")),
         combo_min_edge_cents=int(os.getenv("KALSHI_COMBO_MIN_EDGE_CENTS", "3")),
         combo_min_confidence_cents=int(os.getenv("KALSHI_COMBO_MIN_CONFIDENCE_CENTS", "55")),
@@ -104,4 +112,5 @@ def load_settings(env_file: str | os.PathLike[str] | None = ".env") -> Settings:
         copy_allowed_categories=frozenset(
             item.strip() for item in os.getenv("KALSHI_COPY_ALLOWED_CATEGORIES", "").split(",") if item.strip()
         ),
+>>>>>>> origin/main
     )

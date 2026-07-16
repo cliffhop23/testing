@@ -6,6 +6,12 @@ import argparse
 import json
 import sys
 import uuid
+<<<<<<< HEAD
+
+from .client import KalshiClient, KalshiClientError
+from .config import load_settings
+from .strategy import choose_low_price_candidates
+=======
 from dataclasses import asdict
 
 from .client import KalshiClient, KalshiClientError
@@ -13,6 +19,7 @@ from .config import Settings, load_settings
 from .copy_trading import evaluate_copy_signals, load_copy_signals
 from .social import LeaderboardError, fetch_apify_leaderboard, load_leaderboard_file, rank_traders_for_copying
 from .strategy import choose_combo_prediction_candidates, choose_low_price_candidates, load_prediction_signals
+>>>>>>> origin/main
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -24,6 +31,11 @@ def build_parser() -> argparse.ArgumentParser:
     markets = subparsers.add_parser("markets", help="List currently open markets.")
     markets.add_argument("--limit", type=int, default=10)
 
+<<<<<<< HEAD
+    run = subparsers.add_parser("run", help="Scan markets and optionally place one conservative order.")
+    run.add_argument("--limit", type=int, default=10, help="Number of open markets to scan.")
+    run.add_argument("--max-price-cents", type=int, help="Maximum displayed ask price to consider.")
+=======
     leaderboard = subparsers.add_parser("leaderboard", help="Fetch/filter the Kalshi social leaderboard.")
     leaderboard.add_argument("--file", help="Read leaderboard rows from a local JSON export instead of Apify.")
     leaderboard.add_argument("--metric", help="Leaderboard metric, e.g. projected_pnl, volume, num_markets_traded.")
@@ -46,6 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--min-combo-signals", type=int, help="Minimum prediction signals required for combo-prediction.")
     run.add_argument("--min-edge-cents", type=int, help="Minimum predicted edge over ask for combo-prediction.")
     run.add_argument("--min-confidence-cents", type=int, help="Minimum combo probability required for the selected outcome.")
+>>>>>>> origin/main
     run.add_argument("--count", type=int, help="Contract count to submit if live trading is enabled.")
     run.add_argument("--live", action="store_true", help="Actually submit an order. Omit for dry-run only.")
 
@@ -71,6 +84,11 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(payload, indent=2, sort_keys=True))
             return 0
 
+<<<<<<< HEAD
+        if args.command == "run":
+            return run_bot(args, settings, client)
+    except KalshiClientError as exc:
+=======
         if args.command == "leaderboard":
             return leaderboard_command(args, settings)
 
@@ -80,12 +98,16 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "run":
             return run_bot(args, settings, client)
     except (KalshiClientError, LeaderboardError, ValueError) as exc:
+>>>>>>> origin/main
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
     return 2
 
 
+<<<<<<< HEAD
+def run_bot(args: argparse.Namespace, settings, client: KalshiClient) -> int:
+=======
 def leaderboard_command(args: argparse.Namespace, settings: Settings) -> int:
     traders = _load_leaderboard(args.file, settings, metric=args.metric, timeframe=args.timeframe, category=args.category)
     qualified = rank_traders_for_copying(
@@ -163,10 +185,17 @@ def copy_command(args: argparse.Namespace, settings: Settings, client: KalshiCli
 
 
 def run_bot(args: argparse.Namespace, settings: Settings, client: KalshiClient) -> int:
+>>>>>>> origin/main
     max_price_cents = args.max_price_cents or settings.default_max_price_cents
     count = args.count or settings.default_order_count
     markets_payload = client.get_markets(limit=args.limit, status="open")
     markets = markets_payload.get("markets", [])
+<<<<<<< HEAD
+    candidates = choose_low_price_candidates(markets, max_price_cents=max_price_cents)
+
+    if not candidates:
+        print(f"No candidates found at or below {max_price_cents}¢.")
+=======
     if args.strategy == "combo-prediction":
         if not args.predictions_file:
             raise ValueError("--predictions-file is required when --strategy combo-prediction is used.")
@@ -183,6 +212,7 @@ def run_bot(args: argparse.Namespace, settings: Settings, client: KalshiClient) 
 
     if not candidates:
         print(f"No {args.strategy} candidates found at or below {max_price_cents}¢.")
+>>>>>>> origin/main
         return 0
 
     candidate = candidates[0]
@@ -190,7 +220,10 @@ def run_bot(args: argparse.Namespace, settings: Settings, client: KalshiClient) 
         json.dumps(
             {
                 "selected": candidate.__dict__,
+<<<<<<< HEAD
+=======
                 "strategy": args.strategy,
+>>>>>>> origin/main
                 "count": count,
                 "dry_run": settings.dry_run or not args.live,
             },
@@ -214,6 +247,8 @@ def run_bot(args: argparse.Namespace, settings: Settings, client: KalshiClient) 
     return 0
 
 
+<<<<<<< HEAD
+=======
 def _load_leaderboard(
     path: str | None,
     settings: Settings,
@@ -253,5 +288,6 @@ def _copy_filter_summary(settings: Settings) -> dict:
     }
 
 
+>>>>>>> origin/main
 if __name__ == "__main__":
     raise SystemExit(main())
